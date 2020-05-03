@@ -2,6 +2,8 @@ import os
 import cv2
 import json
 import argparse
+from tqdm import tqdm
+import xml.etree.ElementTree as ET
 
 COCO_DICT=['images','annotations','categories']
 
@@ -23,11 +25,16 @@ CATEGORIES_DICT=['id','name']
 RSOD_CATEGORIES=['aircraft','playground','overpass','oiltank']
 NWPU_CATEGORIES=['airplane','ship','storage tank','baseball diamond','tennis court',\
 					'basketball court','ground track field','harbor','bridge','vehicle']
+VOC_CATEGORIES=['aeroplane','bicycle','bird','boat','bottle','bus','car','cat','chair','cow',\
+					'diningtable','dog','horse','motorbike','person','pottedplant','sheep','sofa','train','tvmonitor']
+DIOR_CATEGORIES=['golffield','Expressway-toll-station','vehicle','trainstation','chimney','storagetank',\
+					'ship','harbor','airplane','groundtrackfield','tenniscourt','dam','basketballcourt',\
+					'Expressway-Service-area','stadium','airport','baseballfield','bridge','windmill','overpass']
 
 parser=argparse.ArgumentParser(description='2COCO')
-parser.add_argument('--image_path',type=str,default='',help='config file')
-parser.add_argument('--annotation_path',type=str,default='',help='config file')
-parser.add_argument('--dataset',type=str,default='NWPU',help='config file')
+parser.add_argument('--image_path',type=str,default='./aircraft/JPEGImages/',help='config file')
+parser.add_argument('--annotation_path',type=str,default='./aircraft/Annotation/labels/',help='config file')
+parser.add_argument('--dataset',type=str,default='RSOD',help='config file')
 parser.add_argument('--save',type=str,default='./test.json',help='config file')
 
 args=parser.parse_args()
@@ -37,6 +44,7 @@ def load_json(path):
 		json_dict=json.load(f)
 		for i in json_dict:
 			print(i)
+		print(json_dict['annotations'])
 
 def save_json(dict,path):
 	print('SAVE_JSON...')
@@ -54,8 +62,16 @@ def generate_categories_dict(category):
 
 def generate_images_dict(imagelist,image_path,start_image_id):
 	print('GENERATE_IMAGES_DICT...')
-	return [{IMAGES_DICT[0]:x,IMAGES_DICT[1]:load_image(image_path+x)[0],\
-					IMAGES_DICT[2]:load_image(image_path+x)[1],IMAGES_DICT[3]:imagelist.index(x)+start_image_id} for x in imagelist]
+	images_dict=[]
+	with tqdm(total=len(imagelist)) as load_bar:
+		for x in imagelist:
+			dict={IMAGES_DICT[0]:x,IMAGES_DICT[1]:load_image(image_path+x)[0],\
+					IMAGES_DICT[2]:load_image(image_path+x)[1],IMAGES_DICT[3]:imagelist.index(x)+start_image_id}
+			load_bar.update(1)
+			images_dict.append(dict)
+	return images_dict
+	# return [{IMAGES_DICT[0]:x,IMAGES_DICT[1]:load_image(image_path+x)[0],\
+	# 				IMAGES_DICT[2]:load_image(image_path+x)[1],IMAGES_DICT[3]:imagelist.index(x)+start_image_id} for x in imagelist]
 
 def NWPU_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 
@@ -65,6 +81,7 @@ def NWPU_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 	images_dict=generate_images_dict(imgname,image_path,start_image_id)
 
 	print('GENERATE_ANNOTATIONS_DICT...')
+	annotations_dict=[]
 	for i in images_dict:
 		image_id=i['id']
 		image_name=i['file_name']
@@ -72,7 +89,6 @@ def NWPU_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 
 		txt=open(annotation_txt,'r')
 		lines=txt.readlines()
-		annotations_dict=[]
 		id=start_id
 		for j in lines:
 			if j=='\n':
@@ -85,8 +101,8 @@ def NWPU_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 			h=float(j.split(',')[3].split(')')[0])-y_min
 			bbox=[x_min,y_min,w,h]
 			dict={'image_id':image_id,'bbox':bbox,'category_id':category_id,'id':id}
-			annotations_dict.append(dict)
 			id=id+1
+			annotations_dict.append(dict)
 	print('SUCCESSFUL_GENERATE_NWPU_JSON')
 	return {COCO_DICT[0]:images_dict,COCO_DICT[1]:annotations_dict,COCO_DICT[2]:categories_dict}
 
@@ -98,6 +114,7 @@ def RSOD_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 	images_dict=generate_images_dict(imgname,image_path,start_image_id)
 
 	print('GENERATE_ANNOTATIONS_DICT...')
+	annotations_dict=[]
 	for i in images_dict:
 		image_id=i['id']
 		image_name=i['file_name']
@@ -105,7 +122,6 @@ def RSOD_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 
 		txt=open(annotation_txt,'r')
 		lines=txt.readlines()
-		annotations_dict=[]
 		id=start_id
 		for j in lines:
 			category=j.split('\t')[1]
@@ -121,6 +137,38 @@ def RSOD_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 	print('SUCCESSFUL_GENERATE_RSOD_JSON')
 	return {COCO_DICT[0]:images_dict,COCO_DICT[1]:annotations_dict,COCO_DICT[2]:categories_dict}
 
+def  DIOR_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
+
+	categories_dict=generate_categories_dict(DIOR_CATEGORIES)
+
+	imgname=os.listdir(image_path)
+	images_dict=generate_images_dict(imgname,image_path,start_image_id)
+
+	print('GENERATE_ANNOTATIONS_DICT...')
+	annotations_dict=[]
+	for i in images_dict:
+		image_id=i['id']
+		image_name=i['file_name']
+		annotation_xml=annotation_path+image_name.split('.')[0]+'.xml'
+
+		tree=ET.parse(annotation_xml)
+		root=tree.getroot()
+
+		id=start_id
+		for j in root.findall('object'):
+			category=j.find('name').text
+			category_id=DIOR_CATEGORIES.index(category)
+			x_min=float(j.find('bndbox').find('xmin').text)
+			y_min=float(j.find('bndbox').find('ymin').text)
+			w=float(j.find('bndbox').find('xmax').text)-x_min
+			h=float(j.find('bndbox').find('ymax').text)-y_min
+			bbox=[x_min,y_min,w,h]
+			dict={'image_id':image_id,'bbox':bbox,'category_id':category_id,'id':id}
+			annotations_dict.append(dict)
+			id=id+1
+	print('SUCCESSFUL_GENERATE_NWPU_JSON')
+	return {COCO_DICT[0]:images_dict,COCO_DICT[1]:annotations_dict,COCO_DICT[2]:categories_dict}
+
 if __name__=='__main__':
 
 	dataset=args.dataset
@@ -133,4 +181,7 @@ if __name__=='__main__':
 		save_json(json_dict,save)
 	if dataset=='NWPU':
 		json_dict=NWPU_Dataset(image_path,annotation_path,0)
+		save_json(json_dict,save)
+	if dataset=='DIOR':
+		json_dict=DIOR_Dataset(image_path,annotation_path,0)
 		save_json(json_dict,save)

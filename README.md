@@ -5,9 +5,11 @@
 
 ## 目前支持数据集
 
-   NWPU VHR-10：`--dataset NWPU`
+   NWPU VHR-10(txt)：`--dataset NWPU`
    
-   RSOD-Dataset：`--dataset RSOD`
+   RSOD-Dataset(txt)：`--dataset RSOD`
+   
+   DIOR-Dataset(xml)：`--dataset DIOR`
    
 ## 目前测试成功的项目
    

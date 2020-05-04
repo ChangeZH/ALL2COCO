@@ -12,7 +12,7 @@ IMAGES_DICT=['file_name','height','width','id']
 ## 'height': 480, 'width': 640, 'date_captured': '2013-11-18 18:15:05',
 ## 'flickr_url': '', 'id': 516316}
 
-ANNOTATIONS_DICT=['image_id','bbox','category_id','id']
+ANNOTATIONS_DICT=['image_id','ifcrowd','bbox','category_id','id']
 ## {'segmentation': [[]],
 ## 'area': 58488.148799999995, 'iscrowd': 0, 
 ## 'image_id': 170893, 'bbox': [270.55, 80.55, 367.51, 393.7],
@@ -100,7 +100,7 @@ def NWPU_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 			w=float(j.split(',')[2].split('(')[1])-x_min
 			h=float(j.split(',')[3].split(')')[0])-y_min
 			bbox=[x_min,y_min,w,h]
-			dict={'image_id':image_id,'bbox':bbox,'category_id':category_id,'id':id}
+			dict={'image_id':image_id,'ifcrowd':0,'bbox':bbox,'category_id':category_id,'id':id}
 			id=id+1
 			annotations_dict.append(dict)
 	print('SUCCESSFUL_GENERATE_NWPU_JSON')
@@ -131,7 +131,7 @@ def RSOD_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 			w=float(j.split('\t')[4])-x_min
 			h=float(j.split('\t')[5])-y_min
 			bbox=[x_min,y_min,w,h]
-			dict={'image_id':image_id,'bbox':bbox,'category_id':category_id,'id':id}
+			dict={'image_id':image_id,'ifcrowd':0,'bbox':bbox,'category_id':category_id,'id':id}
 			annotations_dict.append(dict)
 			id=id+1
 	print('SUCCESSFUL_GENERATE_RSOD_JSON')
@@ -163,10 +163,10 @@ def  DIOR_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 			w=float(j.find('bndbox').find('xmax').text)-x_min
 			h=float(j.find('bndbox').find('ymax').text)-y_min
 			bbox=[x_min,y_min,w,h]
-			dict={'image_id':image_id,'bbox':bbox,'category_id':category_id,'id':id}
+			dict={'image_id':image_id,'ifcrowd':0,'bbox':bbox,'category_id':category_id,'id':id}
 			annotations_dict.append(dict)
 			id=id+1
-	print('SUCCESSFUL_GENERATE_NWPU_JSON')
+	print('SUCCESSFUL_GENERATE_DIOR_JSON')
 	return {COCO_DICT[0]:images_dict,COCO_DICT[1]:annotations_dict,COCO_DICT[2]:categories_dict}
 
 if __name__=='__main__':

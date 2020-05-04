@@ -12,7 +12,7 @@ IMAGES_DICT=['file_name','height','width','id']
 ## 'height': 480, 'width': 640, 'date_captured': '2013-11-18 18:15:05',
 ## 'flickr_url': '', 'id': 516316}
 
-ANNOTATIONS_DICT=['image_id','ifcrowd','bbox','category_id','id']
+ANNOTATIONS_DICT=['image_id','iscrowd','bbox','category_id','id']
 ## {'segmentation': [[]],
 ## 'area': 58488.148799999995, 'iscrowd': 0, 
 ## 'image_id': 170893, 'bbox': [270.55, 80.55, 367.51, 393.7],
@@ -32,8 +32,8 @@ DIOR_CATEGORIES=['golffield','Expressway-toll-station','vehicle','trainstation',
 					'Expressway-Service-area','stadium','airport','baseballfield','bridge','windmill','overpass']
 
 parser=argparse.ArgumentParser(description='2COCO')
-parser.add_argument('--image_path',type=str,default='./aircraft/JPEGImages/',help='config file')
-parser.add_argument('--annotation_path',type=str,default='./aircraft/Annotation/labels/',help='config file')
+parser.add_argument('--image_path',type=str,default='./coco/train2017/',help='config file')
+parser.add_argument('--annotation_path',type=str,default='./coco/annotations/labels/',help='config file')
 parser.add_argument('--dataset',type=str,default='RSOD',help='config file')
 parser.add_argument('--save',type=str,default='./test.json',help='config file')
 
@@ -58,7 +58,7 @@ def load_image(path):
 
 def generate_categories_dict(category):
 	print('GENERATE_CATEGORIES_DICT...')
-	return [{CATEGORIES_DICT[0]:category.index(x),CATEGORIES_DICT[1]:x} for x in category]
+	return [{CATEGORIES_DICT[0]:category.index(x)+1,CATEGORIES_DICT[1]:x} for x in category]
 
 def generate_images_dict(imagelist,image_path,start_image_id):
 	print('GENERATE_IMAGES_DICT...')
@@ -100,7 +100,7 @@ def NWPU_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 			w=float(j.split(',')[2].split('(')[1])-x_min
 			h=float(j.split(',')[3].split(')')[0])-y_min
 			bbox=[x_min,y_min,w,h]
-			dict={'image_id':image_id,'ifcrowd':0,'bbox':bbox,'category_id':category_id,'id':id}
+			dict={'image_id':image_id,'iscrowd':0,'bbox':bbox,'category_id':category_id,'id':id}
 			id=id+1
 			annotations_dict.append(dict)
 	print('SUCCESSFUL_GENERATE_NWPU_JSON')
@@ -125,13 +125,13 @@ def RSOD_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 		id=start_id
 		for j in lines:
 			category=j.split('\t')[1]
-			category_id=RSOD_CATEGORIES.index(category)
+			category_id=RSOD_CATEGORIES.index(category)+1
 			x_min=float(j.split('\t')[2])
 			y_min=float(j.split('\t')[3])
 			w=float(j.split('\t')[4])-x_min
 			h=float(j.split('\t')[5])-y_min
 			bbox=[x_min,y_min,w,h]
-			dict={'image_id':image_id,'ifcrowd':0,'bbox':bbox,'category_id':category_id,'id':id}
+			dict={'image_id':image_id,'iscrowd':0,'bbox':bbox,'category_id':category_id,'id':id}
 			annotations_dict.append(dict)
 			id=id+1
 	print('SUCCESSFUL_GENERATE_RSOD_JSON')
@@ -163,7 +163,7 @@ def  DIOR_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 			w=float(j.find('bndbox').find('xmax').text)-x_min
 			h=float(j.find('bndbox').find('ymax').text)-y_min
 			bbox=[x_min,y_min,w,h]
-			dict={'image_id':image_id,'ifcrowd':0,'bbox':bbox,'category_id':category_id,'id':id}
+			dict={'image_id':image_id,'iscrowd':0,'bbox':bbox,'category_id':category_id,'id':id}
 			annotations_dict.append(dict)
 			id=id+1
 	print('SUCCESSFUL_GENERATE_DIOR_JSON')

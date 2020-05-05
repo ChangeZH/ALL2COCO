@@ -82,6 +82,7 @@ def NWPU_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 
 	print('GENERATE_ANNOTATIONS_DICT...')
 	annotations_dict=[]
+	id=start_id
 	for i in images_dict:
 		image_id=i['id']
 		image_name=i['file_name']
@@ -89,7 +90,7 @@ def NWPU_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 
 		txt=open(annotation_txt,'r')
 		lines=txt.readlines()
-		id=start_id
+		
 		for j in lines:
 			if j=='\n':
 				continue
@@ -115,6 +116,7 @@ def RSOD_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 
 	print('GENERATE_ANNOTATIONS_DICT...')
 	annotations_dict=[]
+	id=start_id
 	for i in images_dict:
 		image_id=i['id']
 		image_name=i['file_name']
@@ -122,7 +124,7 @@ def RSOD_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 
 		txt=open(annotation_txt,'r')
 		lines=txt.readlines()
-		id=start_id
+		
 		for j in lines:
 			category=j.split('\t')[1]
 			category_id=RSOD_CATEGORIES.index(category)+1
@@ -146,6 +148,7 @@ def  DIOR_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 
 	print('GENERATE_ANNOTATIONS_DICT...')
 	annotations_dict=[]
+	id=start_id
 	for i in images_dict:
 		image_id=i['id']
 		image_name=i['file_name']
@@ -154,7 +157,6 @@ def  DIOR_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 		tree=ET.parse(annotation_xml)
 		root=tree.getroot()
 
-		id=start_id
 		for j in root.findall('object'):
 			category=j.find('name').text
 			category_id=DIOR_CATEGORIES.index(category)

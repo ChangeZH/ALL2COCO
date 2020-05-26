@@ -12,7 +12,7 @@ IMAGES_DICT=['file_name','height','width','id']
 ## 'height': 480, 'width': 640, 'date_captured': '2013-11-18 18:15:05',
 ## 'flickr_url': '', 'id': 516316}
 
-ANNOTATIONS_DICT=['image_id','iscrowd','bbox','category_id','id']
+ANNOTATIONS_DICT=['image_id','iscrowd','area','bbox','category_id','id']
 ## {'segmentation': [[]],
 ## 'area': 58488.148799999995, 'iscrowd': 0, 
 ## 'image_id': 170893, 'bbox': [270.55, 80.55, 367.51, 393.7],

@@ -11,6 +11,8 @@
    
    DIOR-Dataset(xml)：`--dataset DIOR`
    
+   YOLO-Dataset(txt)：`--dataset YOLO`
+   
 ## 目前测试成功的项目
    
    Yet-Another-EfficientDet-Pytorch(https://github.com/zylo117/Yet-Another-EfficientDet-Pytorch)

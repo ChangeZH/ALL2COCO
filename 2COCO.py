@@ -94,7 +94,7 @@ def NWPU_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 		for j in lines:
 			if j=='\n':
 				continue
-			category_id=int(j.split(',')[4])-1
+			category_id=int(j.split(',')[4])
 			category=NWPU_CATEGORIES[category_id]
 			x_min=float(j.split(',')[0].split('(')[1])
 			y_min=float(j.split(',')[1].split(')')[0])

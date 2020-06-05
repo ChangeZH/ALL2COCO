@@ -22,6 +22,7 @@ CATEGORIES_DICT=['id','name']
 ## {'supercategory': 'person', 'id': 1, 'name': 'person'}
 ## {'supercategory': 'vehicle', 'id': 2, 'name': 'bicycle'}
 
+YOLO_CATEGORIES=['person']
 RSOD_CATEGORIES=['aircraft','playground','overpass','oiltank']
 NWPU_CATEGORIES=['airplane','ship','storage tank','baseball diamond','tennis court',\
 					'basketball court','ground track field','harbor','bridge','vehicle']
@@ -107,6 +108,44 @@ def NWPU_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 	print('SUCCESSFUL_GENERATE_NWPU_JSON')
 	return {COCO_DICT[0]:images_dict,COCO_DICT[1]:annotations_dict,COCO_DICT[2]:categories_dict}
 
+def YOLO_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
+
+	categories_dict=generate_categories_dict(YOLO_CATEGORIES)
+
+	imgname=os.listdir(image_path)
+	images_dict=generate_images_dict(imgname,image_path)
+
+	print('GENERATE_ANNOTATIONS_DICT...')
+	annotations_dict=[]
+	id=start_id
+	for i in images_dict:
+		image_id=i['id']
+		image_name=i['file_name']
+		W,H=i['width'],i['height']
+		annotation_txt=annotation_path+image_name.split('.')[0]+'.txt'
+
+		txt=open(annotation_txt,'r')
+		lines=txt.readlines()
+		
+		for j in lines:
+			category_id=int(j.split(' ')[0])+1
+			category=YOLO_CATEGORIES
+			x=float(j.split(' ')[1])
+			y=float(j.split(' ')[2])
+			w=float(j.split(' ')[3])
+			h=float(j.split(' ')[4])
+			x_min=(x-w/2)*W
+			y_min=(y-h/2)*H
+			w=w*W
+			h=h*H
+			area=w*h
+			bbox=[x_min,y_min,w,h]
+			dict={'image_id':image_id,'iscrowd':0,'area':area,'bbox':bbox,'category_id':category_id,'id':id}
+			annotations_dict.append(dict)
+			id=id+1
+	print('SUCCESSFUL_GENERATE_YOLO_JSON')
+	return {COCO_DICT[0]:images_dict,COCO_DICT[1]:annotations_dict,COCO_DICT[2]:categories_dict}
+
 def RSOD_Dataset(image_path,annotation_path,start_image_id=0,start_id=0):
 
 	categories_dict=generate_categories_dict(RSOD_CATEGORIES)
@@ -186,4 +225,6 @@ if __name__=='__main__':
 		save_json(json_dict,save)
 	if dataset=='DIOR':
 		json_dict=DIOR_Dataset(image_path,annotation_path,0)
+	if dataset=='YOLO':
+		json_dict=YOLO_Dataset(image_path,annotation_path,0)
 		save_json(json_dict,save)

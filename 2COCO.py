@@ -219,12 +219,10 @@ if __name__=='__main__':
 
 	if dataset=='RSOD':
 		json_dict=RSOD_Dataset(image_path,annotation_path,0)
-		save_json(json_dict,save)
 	if dataset=='NWPU':
 		json_dict=NWPU_Dataset(image_path,annotation_path,0)
-		save_json(json_dict,save)
 	if dataset=='DIOR':
 		json_dict=DIOR_Dataset(image_path,annotation_path,0)
 	if dataset=='YOLO':
 		json_dict=YOLO_Dataset(image_path,annotation_path,0)
-		save_json(json_dict,save)
+	save_json(json_dict,save)
